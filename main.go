@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"github.com/atotto/clipboard"
 	"github.com/cheggaaa/pb/v3"
 	"io/ioutil"
 	"log"
@@ -38,5 +39,10 @@ func main() {
 	bar.Finish()
 	defer res.Body.Close()
 	body, err := ioutil.ReadAll(res.Body)
+	if err := clipboard.WriteAll(string(body)); err != nil {
+		fmt.Println("链接复制失败")
+	} else {
+		fmt.Println("链接已复制到剪切板：")
+	}
 	fmt.Println(string(body))
 }
