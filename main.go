@@ -9,14 +9,27 @@ import (
 	"net/http"
 	"os"
 	"strings"
+	"sync"
 )
 
+var wg sync.WaitGroup
+const baseUrl = "http://tmp.o1o.win/"
+
 func main() {
-	const baseUrl = "http://tmp.o1o.win/"
 	if len(os.Args) < 2 {
 		log.Fatal("命令后面需要带上文件路径")
 	}
-	filepath := os.Args[1]
+	filepaths := os.Args[1:]
+	wg.Add(len(filepaths))
+	for _,value :=range filepaths {
+		go UploadFile(value)
+	}
+	wg.Wait()
+	fmt.Println("全部上传完成")
+}
+
+func UploadFile(filepath string) error {
+	defer wg.Done()
 	sl := strings.Split(filepath, "/")
 	filename := sl[len(sl)-1]
 
@@ -45,4 +58,6 @@ func main() {
 		fmt.Println("链接已复制到剪切板：")
 	}
 	fmt.Println(string(body))
+	return err
 }
+
