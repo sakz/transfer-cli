@@ -13,31 +13,32 @@ import (
 )
 
 var wg sync.WaitGroup
+
 const baseUrl = "http://tmp.o1o.win/"
 
 func main() {
 	if len(os.Args) < 2 {
 		log.Fatal("命令后面需要带上文件路径")
 	}
-	filepaths := os.Args[1:]
-	wg.Add(len(filepaths))
-	for _,value :=range filepaths {
+	filenames := os.Args[1:]
+	wg.Add(len(filenames))
+	for _, value := range filenames {
 		go UploadFile(value)
 	}
 	wg.Wait()
 	fmt.Println("全部上传完成")
 }
 
-func UploadFile(filepath string) error {
+func UploadFile(filepath string) {
 	defer wg.Done()
 	sl := strings.Split(filepath, "/")
 	filename := sl[len(sl)-1]
 
 	file, err := os.Open(filepath)
-	defer file.Close()
 	if err != nil {
 		log.Fatal("文件打开错误")
 	}
+	defer file.Close()
 	url := baseUrl + filename
 	fileInfo, _ := os.Stat(filepath)
 	filesize := fileInfo.Size()
@@ -49,15 +50,16 @@ func UploadFile(filepath string) error {
 	}
 	client := &http.Client{}
 	res, err := client.Do(req)
+	if err != nil {
+		fmt.Println(filepath + "上传失败")
+	}
 	bar.Finish()
 	defer res.Body.Close()
-	body, err := ioutil.ReadAll(res.Body)
+	body, _ := ioutil.ReadAll(res.Body)
 	if err := clipboard.WriteAll(string(body)); err != nil {
 		// fmt.Println("链接复制失败")
 	} else {
 		fmt.Println("链接已复制到剪切板：")
 	}
 	fmt.Println(string(body))
-	return err
 }
-
