@@ -14,7 +14,7 @@ import (
 
 var wg sync.WaitGroup
 
-const baseUrl = "http://tmp.o1o.win/"
+const baseUrl = "http://tmp.o3o.top/"
 
 func main() {
 	if len(os.Args) < 2 {
